@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 mongoose
   .connect(
     
-    "mongodb://localhost:27017/mern-project",
+    "mongodb://localhost:27017/mern-project-db",
     {
       useNewUrlParser: true,
       useUnifiedTopology: true,
