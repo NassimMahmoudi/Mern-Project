@@ -17,7 +17,7 @@ const RecipeSchema = new mongoose.Schema(
       maxlength: 50,
     },
     picture: {
-      type: [String],
+      type: String,
       required: true,}, 
     is_accepted: {
       type: Boolean,

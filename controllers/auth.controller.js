@@ -7,10 +7,10 @@ const { signUpErrors, signInErrors } = require('../utils/errors.utils.js');
 const maxAge = 3 * 24 * 60 * 60 * 1000;
 
 module.exports.signUp = async (req, res) => {
-  const {pseudo, email, password ,bio} = req.body
+  const {pseudo, email, password } = req.body
   let picture = '/uploads/profils/'+req.file.filename;
   try {
-    const user = await UserModel.create({pseudo, email, password, bio, picture });
+    const user = await UserModel.create({pseudo, email, password, picture });
     res.status(201).json({ user: user._id});
   }
   catch(err) {

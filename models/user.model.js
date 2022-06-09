@@ -35,10 +35,6 @@ const userSchema = new mongoose.Schema(
     picture: {
       type: String,
     },
-    bio :{
-      type: String,
-      max: 1024,
-    },
     followers: {
       type: [String]
     },

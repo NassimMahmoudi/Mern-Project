@@ -11,7 +11,7 @@ var upload_video = require("./video_upload");
 module.exports.readRecipe = (req, res) => {
   if (!ObjectID.isValid(req.params.id))
     return res.status(400).send("ID unknown : " + req.params.id);
-  PostModel.findOne({_id :req.params.id},(err, docs) => {
+  RecipeModel.findOne({_id :req.params.id},(err, docs) => {
     if (!err) res.send(docs);
     else console.log("Error to get data : " + err);
   });
@@ -19,30 +19,27 @@ module.exports.readRecipe = (req, res) => {
 module.exports.myRecipes = (req, res) => {
   if (!ObjectID.isValid(req.params.id))
     return res.status(400).send("ID unknown : " + req.params.id);
-  PostModel.find({posterId : req.params.id},(err, docs) => {
+  RecipeModel.find({posterId : req.params.id},(err, docs) => {
     if (!err) res.send(docs);
     else console.log("Error to get data : " + err);
   }).sort({ createdAt: -1 });
 };
 module.exports.readAllRecipes = async (req, res) => {
-  const posts = await PostModel.find().sort({ createdAt: -1 });
+  const posts = await RecipeModel.find().sort({ createdAt: -1 });
   res.status(200).json(posts);
 };
 module.exports.readAcceptedRecipes = async (req, res) => {
-  const posts = await PostModel.find({is_accepted : true }).sort({ createdAt: -1 });
+  const posts = await RecipeModel.find({is_accepted : true }).sort({ createdAt: -1 });
   res.status(200).json(posts);
 };
 
 module.exports.createRecipe = async (req, res) => {
-  let pictures= [];
-  req.files.forEach(element => {
-        pictures.push(element.path)
-  }); 
+  let picture = '/uploads/'+req.file.filename; 
   const newRecipe = new RecipeModel({
     posterId: req.body.posterId,
     description: req.body.description,
     name: req.body.name,
-    picture: pictures,
+    picture: picture,
     video: req.body.video,
   });
 
@@ -54,18 +51,16 @@ module.exports.createRecipe = async (req, res) => {
   }
 };
 
-module.exports.updatePost = (req, res) => {
+module.exports.updateRecipe = (req, res) => {
   if (!ObjectID.isValid(req.params.id))
     return res.status(400).send("ID unknown : " + req.params.id);
 
   const updatedRecord = {
-    message: req.body.message,
-    ville: req.body.ville,
-    titre: req.body.titre,
-    delegation: req.body.delegation,
+    description: req.body.description,
+    name: req.body.name,
   };
 
-  PostModel.findByIdAndUpdate(
+  RecipeModel.findByIdAndUpdate(
     req.params.id,
     { $set: updatedRecord },
     { new: true },
@@ -75,7 +70,7 @@ module.exports.updatePost = (req, res) => {
     }
   );
 };
-module.exports.acceptPost = (req, res) => {
+module.exports.acceptRecipe = (req, res) => {
   if (!ObjectID.isValid(req.params.id))
     return res.status(400).send("ID unknown : " + req.params.id);
 
@@ -83,7 +78,7 @@ module.exports.acceptPost = (req, res) => {
     is_accepted : true,
   };
 
-  PostModel.findByIdAndUpdate(
+  RecipeModel.findByIdAndUpdate(
     req.params.id,
     { $set: updatedRecord },
     { new: true },
@@ -94,22 +89,22 @@ module.exports.acceptPost = (req, res) => {
   );
 };
 
-module.exports.deletePost = (req, res) => {
+module.exports.deleteRecipe = (req, res) => {
   if (!ObjectID.isValid(req.params.id))
     return res.status(400).send("ID unknown : " + req.params.id);
 
-  PostModel.findByIdAndRemove(req.params.id, (err, docs) => {
+  RecipeModel.findByIdAndRemove(req.params.id, (err, docs) => {
     if (!err) res.send(docs);
     else console.log("Delete error : " + err);
   });
 };
 
-module.exports.likePost = async (req, res) => {
+module.exports.likeReipe = async (req, res) => {
   if (!ObjectID.isValid(req.params.id))
     return res.status(400).send("ID unknown : " + req.params.id);
 
   try {
-    await PostModel.findByIdAndUpdate(
+    await RecipeModel.findByIdAndUpdate(
       req.params.id,
       {
         $addToSet: { likers: req.body.id_liker },
@@ -131,12 +126,12 @@ module.exports.likePost = async (req, res) => {
     }
 };
 
-module.exports.unlikePost = async (req, res) => {
+module.exports.unlikeRecipe = async (req, res) => {
   if (!ObjectID.isValid(req.params.id))
     return res.status(400).send("ID unknown : " + req.params.id);
 
   try {
-    await PostModel.findByIdAndUpdate(
+    await RecipeModel.findByIdAndUpdate(
       req.params.id,
       {
         $pull: { likers: req.body.id_liker },
@@ -158,12 +153,12 @@ module.exports.unlikePost = async (req, res) => {
     }
 };
 
-module.exports.commentPost = (req, res) => {
+module.exports.commentRecipe = (req, res) => {
   if (!ObjectID.isValid(req.params.id))
     return res.status(400).send("ID unknown : " + req.params.id);
 
   try {
-    return PostModel.findByIdAndUpdate(
+    return RecipeModel.findByIdAndUpdate(
       req.params.id,
       {
         $push: {
@@ -183,12 +178,12 @@ module.exports.commentPost = (req, res) => {
     }
 };
 
-module.exports.editCommentPost = (req, res) => {
+module.exports.editCommentRecipe = (req, res) => {
   if (!ObjectID.isValid(req.params.id))
     return res.status(400).send("ID unknown : " + req.params.id);
 
   try {
-    return PostModel.findById(req.params.id, (err, docs) => {
+    return RecipeModel.findById(req.params.id, (err, docs) => {
       const theComment = docs.comments.find((comment) =>
         comment._id.equals(req.body.commentId)
       );
@@ -206,12 +201,12 @@ module.exports.editCommentPost = (req, res) => {
   }
 };
 
-module.exports.deleteCommentPost = (req, res) => {
+module.exports.deleteCommentRecipe = (req, res) => {
   if (!ObjectID.isValid(req.params.id))
     return res.status(400).send("ID unknown : " + req.params.id);
 
   try {
-    return PostModel.findByIdAndUpdate(
+    return RecipeModel.findByIdAndUpdate(
       req.params.id,
       {
         $pull: {
@@ -236,17 +231,9 @@ module.exports.UploadVideo = (req, res) => {
   if (err) {
   return res.status(404).send(JSON.stringify(err));
   }
-  await PostModel.findOneAndUpdate({_id : req.params.id}, {video : data.link});
+  await RecipeModel.findOneAndUpdate({_id : req.params.id}, {video : data.link});
   console.log(data)
   res.send(data.link);
   });
 
-};
-module.exports.getPost = async (posterid) => {
-  if (!ObjectID.isValid(posterid))
-    return res.status(400).send("ID unknown : " + posterid);
-  await PostModel.findOne({ posterId : posterid, is_accepted : true },(err, docs) => {
-    if (!err) return(docs);
-    else console.log("Error to get data : " + err);
-  });
 };

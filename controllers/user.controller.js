@@ -1,5 +1,5 @@
 const UserModel = require("../models/user.model.js");
-const PostModel = require("../models/post.model.js");
+const RecipeModel = require("../models/recipe.model.js");
 const ObjectID = require("mongoose").Types.ObjectId;
 var fs =require('fs');
 
