@@ -7,15 +7,19 @@ const InteractionSchema = new mongoose.Schema(
       required: true
     },
     likes: {
-      
+      type: [String]
+    },
+    dislikes: {
+      type: [String]
     },
     comments: {
       type: [
         {
           commenterId:String,
+          commenterPhoto: String,
           commenterPseudo: String,
           text: String,
-          timestamp: Number,
+          timestamp: Date,
         }
       ],
       required: true,

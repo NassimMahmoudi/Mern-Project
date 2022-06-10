@@ -16,7 +16,7 @@ router.get("/logout", checkUser,authController.logout);
 // user DB
 router.get("/", checkAdmin, userController.getAllUsers);
 //search user
-router.get("/search/:name",requireAuth, userController.SearchUsers);
+router.get("/search/:name", userController.SearchUsers);
 router.get("/:id",requireAuth, userController.userInfo);
 router.put("/:id", requireAuth, userController.updateUser);
 router.put("/accept-user/:id", checkAdmin, userController.acceptUser);

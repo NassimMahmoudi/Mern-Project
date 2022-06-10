@@ -7,12 +7,13 @@ const router = express.Router();
 // Count like
 // Count Dislike
 // Count comments
-//router.patch('/like-recipe/:id', interactionController.likeReipe);
-//router.patch('/unlike-recipe/:id', interactionController.unlikeRecipe);
+router.get('/interaction-recipe/:recipe', interactionController.getInteractions);//id recipe
+router.patch('/like-recipe/:id/:recipe', interactionController.likeRecipe);// id recipe
+router.patch('/unlike-recipe/:id/:recipe', interactionController.unlikeRecipe);// id recipe
 
 // comments
-//router.patch('/comment-recipe/:id', interactionController.commentRecipe);
+router.patch('/comment-recipe/:recipe', interactionController.commentRecipe);
 //router.patch('/edit-comment-recipe/:id', interactionController.editCommentRecipe);
-//router.patch('/delete-comment-recipe/:id', interactionController.deleteCommentRecipe);
+router.patch('/delete-comment-recipe/:recipe/:commentId', interactionController.deleteCommentRecipe);
 
 module.exports = router;

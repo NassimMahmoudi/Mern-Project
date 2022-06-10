@@ -45,7 +45,8 @@ module.exports.createRecipe = async (req, res) => {
 
   try {
     const recipe = await newRecipe.save();
-    return res.status(201).json(recipe);
+    const interaction = await interactionModel.create({ recipeId : recipe._id });
+    return res.status(201).json({ recipe: recipe , interaction : interaction});
   } catch (err) {
     return res.status(400).send(err);
   }
@@ -98,130 +99,6 @@ module.exports.deleteRecipe = (req, res) => {
     else console.log("Delete error : " + err);
   });
 };
-
-module.exports.likeReipe = async (req, res) => {
-  if (!ObjectID.isValid(req.params.id))
-    return res.status(400).send("ID unknown : " + req.params.id);
-
-  try {
-    await RecipeModel.findByIdAndUpdate(
-      req.params.id,
-      {
-        $addToSet: { likers: req.body.id_liker },
-      },
-      { new: true })
-      .then((data) => console.log(data))
-      .catch((err) => res.status(500).send({ message: err }));
-
-    await UserModel.findByIdAndUpdate(
-      req.body.id_liker,
-      {
-        $addToSet: { likes: req.params.id },
-      },
-      { new: true })
-            .then((data) => res.send(data))
-            .catch((err) => res.status(500).send({ message: err }));
-    } catch (err) {
-        return res.status(400).send(err);
-    }
-};
-
-module.exports.unlikeRecipe = async (req, res) => {
-  if (!ObjectID.isValid(req.params.id))
-    return res.status(400).send("ID unknown : " + req.params.id);
-
-  try {
-    await RecipeModel.findByIdAndUpdate(
-      req.params.id,
-      {
-        $pull: { likers: req.body.id_liker },
-      },
-      { new: true })
-            .then((data) => console.log(data))
-            .catch((err) => res.status(500).send({ message: err }));
-
-    await UserModel.findByIdAndUpdate(
-      req.body.id_liker,
-      {
-        $pull: { likes: req.params.id },
-      },
-      { new: true })
-            .then((data) => res.send(data))
-            .catch((err) => res.status(500).send({ message: err }));
-    } catch (err) {
-        return res.status(400).send(err);
-    }
-};
-
-module.exports.commentRecipe = (req, res) => {
-  if (!ObjectID.isValid(req.params.id))
-    return res.status(400).send("ID unknown : " + req.params.id);
-
-  try {
-    return RecipeModel.findByIdAndUpdate(
-      req.params.id,
-      {
-        $push: {
-          comments: {
-            commenterId: req.body.commenterId,
-            commenterPseudo: req.body.commenterPseudo,
-            text: req.body.text,
-            timestamp: new Date().getTime(),
-          },
-        },
-      },
-      { new: true })
-            .then((data) => res.send(data))
-            .catch((err) => res.status(500).send({ message: err }));
-    } catch (err) {
-        return res.status(400).send(err);
-    }
-};
-
-module.exports.editCommentRecipe = (req, res) => {
-  if (!ObjectID.isValid(req.params.id))
-    return res.status(400).send("ID unknown : " + req.params.id);
-
-  try {
-    return RecipeModel.findById(req.params.id, (err, docs) => {
-      const theComment = docs.comments.find((comment) =>
-        comment._id.equals(req.body.commentId)
-      );
-
-      if (!theComment) return res.status(404).send("Comment not found");
-      theComment.text = req.body.text;
-
-      return docs.save((err) => {
-        if (!err) return res.status(200).send(docs);
-        return res.status(500).send(err);
-      });
-    });
-  } catch (err) {
-    return res.status(400).send(err);
-  }
-};
-
-module.exports.deleteCommentRecipe = (req, res) => {
-  if (!ObjectID.isValid(req.params.id))
-    return res.status(400).send("ID unknown : " + req.params.id);
-
-  try {
-    return RecipeModel.findByIdAndUpdate(
-      req.params.id,
-      {
-        $pull: {
-          comments: {
-            _id: req.body.commentId,
-          },
-        },
-      },
-      { new: true })
-            .then((data) => res.send('Deleting success !!'))
-            .catch((err) => res.status(500).send({ message: err }));
-    } catch (err) {
-        return res.status(400).send(err);
-    }
-};
 module.exports.UploadVideo = (req, res) => {
   if (!ObjectID.isValid(req.params.id))
     return res.status(400).send("ID unknown : " + req.params.id);
@@ -236,4 +113,20 @@ module.exports.UploadVideo = (req, res) => {
   res.send(data.link);
   });
 
+};
+module.exports.SearchRecipe = async (req, res) => {
+  let name_serached = req.params.name;
+  let resultSearch=[];
+  const recipes = await RecipeModel.find({is_accepted : true }).sort({ createdAt: -1 });
+  if(recipes){
+    recipes.forEach(element => {
+      let name=element.name;
+      let position = name.indexOf(name_serached);
+      if(position>-1){
+        resultSearch.push(element);
+      }
+    });
+  }
+  
+  res.status(200).json(resultSearch);
 };

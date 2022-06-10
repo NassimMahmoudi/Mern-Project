@@ -6,13 +6,8 @@ const CarnetSchema = new mongoose.Schema(
       type: String,
       required: true
     },
-    name: {
-      type: String,
-      trim: true,
-      maxlength: 50,
-    },
     recipes: {
-      
+      type: [String]
     },
   },
   {

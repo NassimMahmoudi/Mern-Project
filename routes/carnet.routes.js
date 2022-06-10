@@ -4,8 +4,8 @@ const {checkUser, checkAdmin, requireAuth} = require('../middleware/auth.middlew
 const router = express.Router();
 
 
-//router.get("/get-carnet/:id", carnetController.signUp);//id user
-//router.patch("/add-to-carnet/:id/:recipe", carnetController.signUp);//id user
-//router.delete("/delete-from-carnet/:id", carnetController.logout);
+router.get("/get-carnet/:id", carnetController.readCarnet);//id user
+router.patch("/add-to-carnet/:id/:recipe", carnetController.addRecipeToCarnet);//id user
+router.patch("/delete-from-carnet/:id/:recipe", carnetController.deleteRecipeFromCarnet);
 
 module.exports = router;

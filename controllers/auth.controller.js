@@ -1,4 +1,5 @@
 const UserModel = require('../models/user.model.js');
+const CarnetModel = require('../models/carnet.model.js');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 
@@ -11,7 +12,8 @@ module.exports.signUp = async (req, res) => {
   let picture = '/uploads/profils/'+req.file.filename;
   try {
     const user = await UserModel.create({pseudo, email, password, picture });
-    res.status(201).json({ user: user._id});
+    const carnet = await CarnetModel.create({ userId : user._id });
+    res.status(201).json({ user: user._id , carnet : carnet});
   }
   catch(err) {
     const errors = signUpErrors(err);
