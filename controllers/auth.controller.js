@@ -9,15 +9,19 @@ const maxAge = 3 * 24 * 60 * 60 * 1000;
 
 module.exports.signUp = async (req, res) => {
   const {pseudo, email, password } = req.body
-  let picture = '/uploads/profils/'+req.file.filename;
-  try {
-    const user = await UserModel.create({pseudo, email, password, picture });
-    const carnet = await CarnetModel.create({ userId : user._id });
-    res.status(201).json({ user: user._id , carnet : carnet});
-  }
-  catch(err) {
-    const errors = signUpErrors(err);
-    res.status(200).send({ errors })
+  if(req.file.filename){   
+    let picture = '/uploads/'+req.file.filename;
+    try {
+      const user = await UserModel.create({pseudo, email, password, picture });
+      const carnet = await CarnetModel.create({ userId : user._id });
+      res.status(201).send({ message: "User Registered Successfully"});
+    }
+    catch(err) {
+      const errors = signUpErrors(err);
+      res.status(500).send({ message : errors })
+    }
+  }else{
+    res.status(500).send({ message : 'Picture is required' })
   }
 }
 
@@ -27,11 +31,15 @@ module.exports.signIn = async (req, res) => {
   try {
     const user = await UserModel.login(email, password);
     let token = jwt.sign({id: user._id, nom: user.pseudo, role: user.role}, process.env.TOKEN_SECRET,{expiresIn:'3h'});
-    res.header('x-access-token',token).json({ message : 'Login Success !!!'});
+    res.status(200).send({
+      id : user._id,
+      pseudo : user.pseudo,
+      email : user.email,
+      accessToken : token
+    });
 
   } catch (err){
-   const errors = signInErrors(err);
-    res.status(200).json({ errors });
+    res.status(500).send({ message : err.message });
   }
 }
 

@@ -24,6 +24,14 @@ module.exports.myRecipes = (req, res) => {
     else console.log("Error to get data : " + err);
   }).sort({ createdAt: -1 });
 };
+module.exports.myAcceptedRecipes = (req, res) => {
+  if (!ObjectID.isValid(req.params.id))
+    return res.status(400).send("ID unknown : " + req.params.id);
+  RecipeModel.find({posterId : req.params.id,is_accepted : true},(err, docs) => {
+    if (!err) res.send(docs);
+    else console.log("Error to get data : " + err);
+  }).sort({ createdAt: -1 });
+};
 module.exports.readAllRecipes = async (req, res) => {
   const posts = await RecipeModel.find().sort({ createdAt: -1 });
   res.status(200).json(posts);
@@ -46,9 +54,9 @@ module.exports.createRecipe = async (req, res) => {
   try {
     const recipe = await newRecipe.save();
     const interaction = await interactionModel.create({ recipeId : recipe._id });
-    return res.status(201).json({ recipe: recipe , interaction : interaction});
+    return res.status(201).json({ message: "Recipe Added Successfully"});
   } catch (err) {
-    return res.status(400).send(err);
+    return res.status(400).send({ message : err });
   }
 };
 

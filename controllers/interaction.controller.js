@@ -23,7 +23,8 @@ module.exports.likeRecipe = async (req, res) => {
     try {
       await interactionModel.findOneAndUpdate(
         { recipeId : req.params.recipe},
-        {
+        { 
+          $pull: { dislikes: req.params.id },
           $addToSet: { likes: req.params.id },
         },
         { new: true })
@@ -33,6 +34,7 @@ module.exports.likeRecipe = async (req, res) => {
       await UserModel.findByIdAndUpdate(
         req.params.id,
         {
+          $pull: { dislikes: req.params.recipe },
           $addToSet: { likes: req.params.recipe },
         },
         { new: true })
@@ -52,7 +54,8 @@ module.exports.likeRecipe = async (req, res) => {
     try {
       await interactionModel.findOneAndUpdate(
         { recipeId : req.params.recipe},
-        {
+        { 
+          $pull: { likes: req.params.id },
           $addToSet: { dislikes: req.params.id },
         },
         { new: true })
@@ -61,7 +64,8 @@ module.exports.likeRecipe = async (req, res) => {
   
       await UserModel.findByIdAndUpdate(
         req.params.id,
-        {
+        { 
+          $pull: { likes: req.params.recipe },
           $addToSet: { dislikes: req.params.recipe },
         },
         { new: true })
@@ -74,10 +78,11 @@ module.exports.likeRecipe = async (req, res) => {
   
 module.exports.commentRecipe = async (req, res) => {
     if (!ObjectID.isValid(req.params.recipe))
-        return res.status(400).send("ID unknown : " + req.params.id);
-    let user = await UserModel.findOne({email : req.body.email});
+        return res.status(200).send({ message : "ID unknown : " + req.params.id});
+      console.log(req.body.email)
+        let user = await UserModel.findOne({email : req.body.email});
     if(!user)
-        return res.status(400).send("EMAIL unknown : " + req.body.email);
+        return res.status(200).send({ message :"EMAIL unknown : " + req.body.email});
     try {
         await interactionModel.findOneAndUpdate(
         { recipeId : req.params.recipe},
@@ -93,10 +98,10 @@ module.exports.commentRecipe = async (req, res) => {
           },
         },
         { new: true })
-              .then((data) => res.send(data))
+              .then((data) => res.send({ message: 'OK' }))
               .catch((err) => res.status(500).send({ message: err }));
       } catch (err) {
-          return res.status(400).send(err);
+          return res.status(201).send({ message: err });
       }
   };
 /*module.exports.editCommentRecipe = (req, res) => {

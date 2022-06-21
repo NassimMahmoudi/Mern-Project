@@ -4,12 +4,13 @@ const upload = require("../middleware/upload.middleware");
 const {checkUser, checkAdmin, requireAuth} = require('../middleware/auth.middleware');
 const router = express.Router();
 
-
+ 
 router.post('/add-recipe', [upload], recipeController.createRecipe);
 router.get('/get-recipe/:id', recipeController.readRecipe);
 router.get('/', recipeController.readAllRecipes);
 router.get('/accepted-recipes', recipeController.readAcceptedRecipes);
 router.get('/my-recipes/:id', recipeController.myRecipes);
+router.get('/my-accepted-recipes/:id', recipeController.myAcceptedRecipes);
 router.get("/search/:name", recipeController.SearchRecipe);
 
 router.put('/edit-recipe/:id', recipeController.updateRecipe);

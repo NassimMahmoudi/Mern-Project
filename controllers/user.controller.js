@@ -7,6 +7,10 @@ module.exports.getAllUsers = async (req, res) => {
   const users = await UserModel.find().select("-password");
   res.status(200).json(users);
 };
+module.exports.getAllAcceptedUsers = async (req, res) => {
+  const users = await UserModel.find({is_verified : true}).select("-password");
+  res.status(200).json(users);
+};
 module.exports.SearchUsers = async (req, res) => {
   let name_serached = req.params.name;
   let resultSearch=[];
@@ -31,7 +35,7 @@ module.exports.userHome = async (req, res) => {
   const user = await UserModel.findById({_id : req.params.id}).select("-password");
   if(user){
       for (let element of user.following) {
-      posts = await PostModel.find({posterId : element, is_accepted : true});
+      posts = await RecipeModel.find({posterId : element, is_accepted : true});
       
         for (let element of posts) {
         resultSearch.push(element)
@@ -80,6 +84,7 @@ module.exports.deleteUser = async (req, res) => {
 
   try {
     await UserModel.remove({ _id: req.params.id }).exec();
+    await RecipeModel.remove({ posterId: req.params.id }).exec();
     res.status(200).json({ message: "Successfully deleted. " });
   } catch (err) {
     return res.status(500).json({ message: err });
@@ -89,7 +94,7 @@ module.exports.deleteUser = async (req, res) => {
 module.exports.follow = async (req, res) => {
   if (
     !ObjectID.isValid(req.params.id) ||
-    !ObjectID.isValid(req.body.idToFollow)
+    !ObjectID.isValid(req.params.idToFollow)
   )
     return res.status(400).send("ID unknown : " + req.params.id);
 
@@ -98,7 +103,7 @@ module.exports.follow = async (req, res) => {
     await UserModel.findByIdAndUpdate(
       req.params.id,
       { 
-        $addToSet: { following: req.body.idToFollow },
+        $addToSet: { following: req.params.idToFollow },
       },
       { new: true })
             .then((data) => console.log(data))
@@ -106,7 +111,7 @@ module.exports.follow = async (req, res) => {
 
       // add to following list
       await UserModel.findByIdAndUpdate(
-        req.body.idToFollow,
+        req.params.idToFollow,
         { 
           $addToSet: { followers: req.params.id },
          },
@@ -121,7 +126,7 @@ module.exports.follow = async (req, res) => {
 module.exports.unfollow = async (req, res) => {
   if (
     !ObjectID.isValid(req.params.id) ||
-    !ObjectID.isValid(req.body.idToUnfollow)
+    !ObjectID.isValid(req.params.idToUnFollow)
   )
     return res.status(400).send("ID unknown : " + req.params.id);
 
@@ -129,7 +134,7 @@ module.exports.unfollow = async (req, res) => {
     await UserModel.findByIdAndUpdate(
       req.params.id,
       { 
-        $pull: { following: req.body.idToUnfollow },
+        $pull: { following: req.params.idToUnFollow },
       },
       { new: true })
         .then((data) => console.log(data))
@@ -137,7 +142,7 @@ module.exports.unfollow = async (req, res) => {
 
       // Retirer de la liste des followers
       await UserModel.findByIdAndUpdate(
-        req.body.idToUnfollow,
+        req.params.idToUnFollow,
         { 
           $pull: { followers: req.params.id },
          },

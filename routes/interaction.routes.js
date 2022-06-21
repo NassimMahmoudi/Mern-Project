@@ -10,7 +10,7 @@ const router = express.Router();
 router.get('/interaction-recipe/:recipe', interactionController.getInteractions);//id recipe
 router.patch('/like-recipe/:id/:recipe', interactionController.likeRecipe);// id recipe
 router.patch('/unlike-recipe/:id/:recipe', interactionController.unlikeRecipe);// id recipe
-
+ 
 // comments
 router.patch('/comment-recipe/:recipe', interactionController.commentRecipe);
 //router.patch('/edit-comment-recipe/:id', interactionController.editCommentRecipe);

@@ -14,10 +14,14 @@ module.exports.signIn = async (req, res) => {
     try {
       const admin = await AdminModel.login(email, password);
       let token = jwt.sign({id: admin._id, nom: admin.pseudo, role: admin.role}, process.env.TOKEN_SECRET,{expiresIn:'3h'});
-      res.header('x-access-token',token).json({ message : 'Login Success !!!'});
+      res.status(200).send({
+        id : admin._id,
+        pseudo : admin.pseudo,
+        email : admin.email,
+        accessToken : token
+      });
     } catch (err){
-     const errors = signInErrors(err);
-      res.status(200).json({ errors });
+      res.status(500).json({ message : err.message });
     }
   }
   module.exports.signUp = async (req, res) => {
@@ -26,15 +30,23 @@ module.exports.signIn = async (req, res) => {
   
     try {
       const admin = await AdminModel.create({pseudo, email, password, picture });
-      res.status(201).json({ admin: admin._id});
+      res.status(201).json({ message: "Admin Registered Successfully"});
     }
     catch(err) {
       const errors = signUpErrors(err);
-      res.status(200).send({ errors })
+      res.status(200).send({ message : errors })
     }
   }
  
-
+  module.exports.adminInfo = (req, res) => {
+    if (!ObjectID.isValid(req.params.id))
+      return res.status(400).send("ID unknown : " + req.params.id);
+  
+      AdminModel.findById(req.params.id, (err, docs) => {
+      if (!err) res.send(docs);
+      else console.log("ID unknown : " + err);
+    }).select("-password");
+  };
 module.exports.logout = async (req, res) => {
   let token = req.headers['x-access-token'];
   let randomNumberToAppend = toString(Math.floor((Math.random() * 1000) + 1));

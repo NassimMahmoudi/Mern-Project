@@ -4,7 +4,7 @@ const bcrypt = require('bcrypt');
 
 const userSchema = new mongoose.Schema(
   {
-    pseudo: {
+    pseudo: { 
       type: String,
       required: true,
       minLength: 3,
@@ -67,13 +67,13 @@ userSchema.statics.login = async function(email, password) {
     const auth = await bcrypt.compare(password, user.password);
     if (auth) {
       if(user.is_verified==false){
-        throw Error('User is not accepted !!');
+        throw Error('User is not accepted');
       }
       return user;
     }
-    throw Error('incorrect password');
+    throw Error('Incorrect Password');
   }
-  throw Error('incorrect email')
+  throw Error('Incorrect Email')
 };
 
 const UserModel = mongoose.model("user", userSchema);
